@@ -1,9 +1,9 @@
 library(sandwich)
 library(survey)
 
-source("D:/Dropbox (ColoradoTeam)/JoseyDissertation/Additional Code/transport-sim/calibrate.R")
-source("D:/Dropbox (ColoradoTeam)/JoseyDissertation/Additional Code/transport-sim/tmle.R")
-source("D:/Dropbox (ColoradoTeam)/JoseyDissertation/Additional Code/transport-sim/simfun.R")
+source("D:/Github/transport-sim/calibrate.R")
+source("D:/Github/transport-sim/tmle.R")
+source("D:/Github/transport-sim/simfun.R")
 
 iter <- 1000
 n_0 <- 1000

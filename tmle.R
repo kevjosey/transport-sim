@@ -46,6 +46,10 @@ tmle <- function(data, S, Z, Y, nsitemodel,  nzmodel, noutmodel) {
   # Get efficient influence curve values for everyone
   tmleest <- mean(q1[, 3][S == 0]) - mean(q1[, 2][S == 0])
   
-  return(list(estimate = tmleest))
+  eic <- (((Z * h1w / ps0) - ((1 - Z) * h0w / ps0)) * (Y - plogis(q[, 1]))) + 
+    (I(S == 0) / ps0 * plogis(q1[, 3])) - (I(S == 0) / ps0 * plogis(q1[, 2])) - 
+    (tmleest / ps0)
+  
+  return(list(estimate = tmleest, variance = var(eic) / n.dat))
   
 }
