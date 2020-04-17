@@ -17,8 +17,8 @@ gen_data <- function(n_0, n_1, prob, sig2, rho = 0, scenario = c("baseline", "po
   if (scenario == "baseline") {
     
     # effect coefficients
-    beta <- c(10, -1, -2, 2, 1)
-    alpha <- c(2, 2, 1, -1, -2)
+    beta <- c(10, -3, -1, 1, 3)
+    alpha <- c(5, 3, -1, 1, -3)
     
     # covariate values
     int0 <- rep(1, times = n_0)
@@ -48,8 +48,8 @@ gen_data <- function(n_0, n_1, prob, sig2, rho = 0, scenario = c("baseline", "po
   } else if (scenario == "positivity") {
     
     # effect coefficients
-    beta <- c(10, -1, -2, 2, 1)
-    alpha <- c(2, 2, 1, -1, -2)
+    beta <- c(10, -3, -1, 1, 3)
+    alpha <- c(5, 3, -1, 1, -3)
     
     # covariate values
     int0 <- rep(1, times = n_0)
@@ -79,8 +79,8 @@ gen_data <- function(n_0, n_1, prob, sig2, rho = 0, scenario = c("baseline", "po
   } else if (scenario == "interaction") {
     
     # effect coefficients
-    beta <- c(10, -1, -2, 2, 1, 2, -1)
-    alpha <- c(2, 2, 1, -1, -2, -1, 2)
+    beta <- c(10, -3, -1, 1, 3, 2, -1)
+    alpha <- c(5, 3, -1, 1, -3, -1, 2)
     
     # covariate values
     int0 <- rep(1, times = n_0)
@@ -110,8 +110,8 @@ gen_data <- function(n_0, n_1, prob, sig2, rho = 0, scenario = c("baseline", "po
   } else if (scenario == "sparse") {
     
     # effect coefficients
-    beta <- c(10, -1, -2, 2, 1, rep(0, times = 4))
-    alpha <- c(2, 2, 1, -1, -2, rep(0, times = 4))
+    beta <- c(10, -3, -1, 1, 3, rep(0, times = 4))
+    alpha <- c(5, 3, -1, 1, -3, rep(0, times = 4))
     
     # covariate values
     int0 <- rep(1, times = n_0)
@@ -197,6 +197,8 @@ simfit <- function(idx = 1, simDat, sparse = FALSE) {
   Y <- rep(0, length(S))
   Y[S == 1] <- dat$y1
   Z[S == 1] <- dat$z1
+  n_0 <- sum(1 - S)
+  Z[S == 0] <- rbinom(n_0, 1, 0.5)
   
   entest_pate <- try( estimate_pate(obj = entfit, X = X, Y = Y, Z = Z, S = S), silent = TRUE )
   
@@ -285,7 +287,7 @@ simfit <- function(idx = 1, simDat, sparse = FALSE) {
   
   # Combine Results
   tau <- c(glmrslt, outrslt, tmlerslt, momrslt, entrslt)
-  cp <- c(entcps, entcpp, outcps, outcpp, indcpp)
+  cp <- c(outcps, outcpp, entcps, entcpp, indcpp)
   
   return(list(tau = tau, cp = cp))
   

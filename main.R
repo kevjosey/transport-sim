@@ -25,9 +25,9 @@ clusterEvalQ(cl, {
   library(sandwich)
   library(survey)
   
-  source("D:/Dropbox (ColoradoTeam)/JoseyDissertation/Additional Code/transport-sim/calibrate.R")
-  source("D:/Dropbox (ColoradoTeam)/JoseyDissertation/Additional Code/transport-sim/tmle.R")
-  source("D:/Dropbox (ColoradoTeam)/JoseyDissertation/Additional Code/transport-sim/simfun.R")
+  source("D:/Github/transport-sim/calibrate.R")
+  source("D:/Github/transport-sim/tmle.R")
+  source("D:/Github/transport-sim/simfun.R")
   
 })
 
@@ -39,7 +39,7 @@ clusterApply(cl, index, function(i) {
   
   dat <- simConditions[i,]
   
-  sig2 <- 5
+  sig2 <- 2
   n_0 <- dat$n_0
   n_1 <- dat$n_1
   prob <- dat$prob
@@ -65,8 +65,8 @@ clusterApply(cl, index, function(i) {
   
   tau_tmp <- do.call(rbind, estList[1,])
   cp_tmp <- do.call(rbind, estList[2,])
-  colnames(tau_tmp) <- c("GLM", "OUT", "AIPW", "TMLE", "MOM", "ENT")
-  colnames(cp_tmp) <- c("ENT_SATE", "ENT_PATE", "OM_SATE", "OM_PATE", "IND_PATE")
+  colnames(tau_tmp) <- c("GLM", "OUT", "TMLE", "MOM", "ENT")
+  colnames(cp_tmp) <- c("OM_SATE", "OM_PATE", "ENT_SATE", "ENT_PATE", "IND_PATE")
   
   tau <- data.frame(misc_out, tau_tmp, stringsAsFactors = FALSE)
   cp <- data.frame(misc_out, cp_tmp, stringsAsFactors = FALSE)
@@ -93,14 +93,14 @@ dir_1 <- "D:/Dropbox (ColoradoTeam)/JoseyDissertation/Data/transport/tauHat/"
 dir_2 <- "D:/Dropbox (ColoradoTeam)/JoseyDissertation/Data/transport/coverageProb/"
 
 files <- list.files(dir_1)
-out_1 <- matrix("", nrow = length(files), ncol = 18)
+out_1 <- matrix("", nrow = length(files), ncol = 16)
 out_2 <- matrix("", nrow = length(files), ncol = 11)
-out_3 <- matrix("", nrow = length(files), ncol = 12)
+out_3 <- matrix("", nrow = length(files), ncol = 11)
 
-colnames(out_1) <- c("n_0", "n_1", "prob", "scenario", "PATE", "SATE", "GLM", "OUT", "AIPW", "TMLE", "MOM", "ENT",
-                     "GLM_conv", "OUT_conv", "AIPW_conv", "TMLE_conv", "MOM_conv", "ENT_conv")
+colnames(out_1) <- c("n_0", "n_1", "prob", "scenario", "PATE", "SATE", "GLM", "OUT","TMLE", "MOM", "ENT",
+                     "GLM_conv", "OUT_conv", "TMLE_conv", "MOM_conv", "ENT_conv")
 colnames(out_2) <- c("n_0", "n_1", "prob", "scenario", "PATE", "SATE", "ENT_SATE", "ENT_PATE", "OUT_SATE", "OUT_PATE", "IND_PATE")
-colnames(out_3) <- c("n_0", "n_1", "prob", "scenario", "PATE", "SATE", "GLM", "OUT", "AIPW", "TMLE", "MOM", "ENT")
+colnames(out_3) <- c("n_0", "n_1", "prob", "scenario", "PATE", "SATE", "GLM", "OUT", "TMLE", "MOM", "ENT")
 j <- 1
 
 for (fdx in files) {
@@ -138,73 +138,73 @@ for (fdx in files) {
 }
 
 load("D:/Dropbox (ColoradoTeam)/JoseyDissertation/Data/transport/tauHat/_500_200_0.5_baseline_.RData")
-dat1 <- stack(as.data.frame(tau[,7:ncol(tau)])[,-3])
+dat1 <- stack(as.data.frame(tau[,7:ncol(tau)]))
 dat1$ind <- factor(dat1$ind, labels = c("Inverse Odds\nof Sampling\nWeights", 
                                         "G-Computation",
                                         "Targeted\nMaximum\nLikelihood\nEstimation",
                                         "Method of\nMoments\nBalancing",
                                         "Entropy\nBalancing"))
 p1 <- ggplot(dat1) + 
-  geom_boxplot(aes(x = ind, y = values), show.legend = FALSE) + 
+  geom_boxplot(aes(x = ind, y = values, fill = ind), show.legend = FALSE) + 
   ylab("PATE") +
-  ylim(-10, 10)  +
+  ylim(-5, 5)  +
   xlab("") +
   ggtitle("Baseline Conditions") +
-  geom_hline(yintercept = -0.4, linetype = 2, show.legend = FALSE) +
+  geom_hline(yintercept = -0.1, linetype = 2, show.legend = FALSE) +
   guides(fill =  FALSE) +
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5))
 
 load("D:/Dropbox (ColoradoTeam)/JoseyDissertation/Data/transport/tauHat/_500_200_0.5_interaction_.RData")
-dat2 <- stack(as.data.frame(tau[,7:ncol(tau)])[,-3])
+dat2 <- stack(as.data.frame(tau[,7:ncol(tau)]))
 dat2$ind <- factor(dat2$ind, labels = c("Inverse Odds\nof Sampling\nWeights", 
                                         "G-Computation",
                                         "Targeted\nMaximum\nLikelihood\nEstimation",
                                         "Method of\nMoments\nBalancing",
                                         "Entropy\nBalancing"))
 p2 <- ggplot(dat2) + 
-  geom_boxplot(aes(x = ind, y = values)) + 
+  geom_boxplot(aes(x = ind, y = values, fill = ind)) + 
   ylab("PATE") +
-  ylim(-10, 10) +
+  ylim(-5, 5) +
   xlab("") +
   ggtitle("Unspecified Interaction") +
-  geom_hline(yintercept = -0.8, linetype = 2, show.legend = FALSE)  +
+  geom_hline(yintercept = -0.5, linetype = 2, show.legend = FALSE)  +
   guides(fill =  FALSE) +
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5))
 
 load("D:/Dropbox (ColoradoTeam)/JoseyDissertation/Data/transport/tauHat/_500_200_0.5_positivity_.RData")
-dat3 <- stack(as.data.frame(tau[,7:ncol(tau)])[,-3])
+dat3 <- stack(as.data.frame(tau[,7:ncol(tau)]))
 dat3$ind <- factor(dat3$ind, labels = c("Inverse Odds\nof Sampling\nWeights", 
                                         "G-Computation",
                                         "Targeted\nMaximum\nLikelihood\nEstimation",
                                         "Method of\nMoments\nBalancing",
                                         "Entropy\nBalancing"))
 p3 <- ggplot(dat3) + 
-  geom_boxplot(aes(x = ind, y = values)) + 
+  geom_boxplot(aes(x = ind, y = values, fill = ind)) + 
   ylab("PATE") +
-  ylim(-10, 10)  +
+  ylim(-5, 5)  +
   xlab("") +
   ggtitle("Positivity Violation") +
-  geom_hline(yintercept = -0.3, linetype = 2, show.legend = FALSE) +
+  geom_hline(yintercept = -0.2, linetype = 2, show.legend = FALSE) +
   guides(fill =  FALSE) +
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5))
 
 load("D:/Dropbox (ColoradoTeam)/JoseyDissertation/Data/transport/tauHat/_500_200_0.5_sparse_.RData")
-dat4 <- stack(as.data.frame(tau[,7:ncol(tau)])[,-3])
+dat4 <- stack(as.data.frame(tau[,7:ncol(tau)]))
 dat4$ind <- factor(dat4$ind, labels = c("Inverse Odds\nof Sampling\nWeights", 
                                          "G-Computation",
                                          "Targeted\nMaximum\nLikelihood\nEstimation",
                                          "Method of\nMoments\nBalancing",
                                          "Entropy\nBalancing"))
 p4 <- ggplot(dat4) + 
-  geom_boxplot(aes(x = ind, y = values)) + 
+  geom_boxplot(aes(x = ind, y = values, fill = ind)) + 
   ylab("PATE") +
-  ylim(-10, 10)  +
+  ylim(-5, 5)  +
   xlab("") +
   ggtitle("Sparse Conditions") +
-  geom_hline(yintercept = -0.4, linetype = 2, show.legend = FALSE) +
+  geom_hline(yintercept = -0.1, linetype = 2, show.legend = FALSE) +
   guides(fill =  FALSE) +
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5))

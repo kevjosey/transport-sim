@@ -1,11 +1,3 @@
-#Seth A. Berkowitz, MD MPH"
-#Code adapted from Kara Rudolph https://rss.onlinelibrary.wiley.com/doi/full/10.1111/rssb.12213#
-#Code cannot be used for commericial purposes and all use must attribute original authors#
-
-## site variable needs to be named 'site' and needs to have value 0 for the site where the outcome data is not used and value 1 for the site where the outcome data is used
-## z variable needs to be named z and have values 0/1
-## y variable is the outcome
-## w variables in a dataframe named w and with names w1:wx
 
 tmle <- function(data, S, Z, Y, nsitemodel,  nzmodel, noutmodel) {
   
@@ -14,9 +6,8 @@ tmle <- function(data, S, Z, Y, nsitemodel,  nzmodel, noutmodel) {
   # Calculate components of clever covariate
   glm_cps <- glm(formula = nsitemodel, data = data, family = "binomial")
   cps <- predict(glm_cps, type = "response")
-  
-  glm_cpz <- glm(formula = nzmodel, data = data, family = "binomial")
-  cpz <- predict(glm_cpz, type = "response")
+  glm_cpz <- glm(formula = nzmodel, data = data, family = "binomial", subset = S == 1)
+  cpz <- predict(glm_cpz, newdata = data, type = "response")
   
   # Calculate clever covariate.
   ps0 <- mean(I(S == 0))
@@ -45,7 +36,6 @@ tmle <- function(data, S, Z, Y, nsitemodel,  nzmodel, noutmodel) {
   
   # Get efficient influence curve values for everyone
   tmleest <- mean(q1[, 3][S == 0]) - mean(q1[, 2][S == 0])
-  
   eic <- (((Z * h1w / ps0) - ((1 - Z) * h0w / ps0)) * (Y - plogis(q[, 1]))) + 
     (I(S == 0) / ps0 * plogis(q1[, 3])) - (I(S == 0) / ps0 * plogis(q1[, 2])) - 
     (tmleest / ps0)

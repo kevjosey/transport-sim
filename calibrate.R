@@ -28,8 +28,8 @@ esteq_sate <- function(X, Y, Z, weights, target, tau) {
 # Estimating equation for the PATE
 esteq_pate <- function(S, X, Y, Z, weights, base_weights, target, tau) {
   
-  eq1 <- S*Z*weights*(X - target)
-  eq2 <- S*(1 - Z)*weights*(X - target)
+  eq1 <- S*(Z*weights*X - target)
+  eq2 <- S*((1 - Z)*weights*X - target)
   eq3 <- (1 - S)*(base_weights*X - target)
   eq4 <- S*weights*(Z*(Y - tau) - (1 - Z)*Y)
   
@@ -40,7 +40,7 @@ esteq_pate <- function(S, X, Y, Z, weights, base_weights, target, tau) {
 
 esteq_sate_mom <- function(X, Y, Z, weights, target, tau) {
   
-  eq1 <- weights*(X - target)
+  eq1 <- weights*X - target
   eq2 <- weights*(Z*(Y - tau) - (1 - Z)*Y)
   
   eq <- c(eq1, eq2) 
@@ -50,7 +50,7 @@ esteq_sate_mom <- function(X, Y, Z, weights, target, tau) {
 
 esteq_pate_mom <- function(S, X, Y, Z, weights, base_weights, target, tau) {
   
-  eq1 <- S*weights*(X - target)
+  eq1 <- S*(weights*X - target)
   eq2 <- (1 - S)*(base_weights*X - target)
   eq3 <- S*weights*(Z*(Y - tau) - (1 - Z)*Y)
   
@@ -258,11 +258,11 @@ estimate_pate <- function(obj, S, X, Y, Z, base_weights = NULL, ...) {
     
     for (i in 1:n) {
       
-      U[1:m,1:m] <- U[1:m,1:m] - S[i] * weights[i] * (X[i,] %*% t(X[i,]))
+      U[1:m,1:m] <- U[1:m,1:m] - S[i] * weights[i] * X[i,] %*% t(X[i,])
       U[1:m, (m + 1):(2*m)] <- U[1:m, (2*m + 1):(3*m)] - diag(S[i], m, m)
       U[(m + 1):(2*m),(m + 1):(2*m)] <- U[(2*m + 1):(3*m),(2*m + 1):(3*m)] - diag((1 - S[i]), m, m)
       
-      v[1:m] <- v[1:m] - S[i]* weights[i] * (Y[i] - tau) * X[i,]
+      v[1:m] <- v[1:m] - S[i]* weights[i] * (Y[i] - Z[i]*tau) * X[i,]
       v[3*m + 1] <- v[3*m + 1] - S[i]*weights[i]*Z[i]
       s <- esteq_pate_mom(X = X[i,], Y = Y[i], Z = Z[i], S = S[i], weights = weights[i], 
                              base_weights = base_weights[i], target = target, tau = tau)
@@ -296,8 +296,8 @@ estimate_pate <- function(obj, S, X, Y, Z, base_weights = NULL, ...) {
     
     for (i in 1:n) {
       
-      U[1:m,1:m] <- U[1:m,1:m] - S[i]*Z[i] * weights[i] * (X[i,] %*% t(X[i,]))
-      U[(m + 1):(2*m),(m + 1):(2*m)] <- U[(m + 1):(2*m),(m + 1):(2*m)] - S[i]*(1 - Z[i]) * weights[i] * (X[i,] %*% t(X[i,]))
+      U[1:m,1:m] <- U[1:m,1:m] - S[i]*Z[i] * weights[i] * X[i,] %*% t(X[i,])
+      U[(m + 1):(2*m),(m + 1):(2*m)] <- U[(m + 1):(2*m),(m + 1):(2*m)] - S[i]*(1 - Z[i]) * weights[i] * X[i,] %*% t(X[i,])
       U[1:m, (2*m + 1):(3*m)] <- U[1:m, (2*m + 1):(3*m)] - diag(S[i], m, m)
       U[(m + 1):(2*m),(2*m + 1):(3*m)] <- U[(m + 1):(2*m),(2*m + 1):(3*m)] - diag(S[i], m, m)
       U[(2*m + 1):(3*m),(2*m + 1):(3*m)] <- U[(2*m + 1):(3*m),(2*m + 1):(3*m)] - diag((1 - S[i]), m, m)

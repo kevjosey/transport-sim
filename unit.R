@@ -6,10 +6,10 @@ source("D:/Github/transport-sim/tmle.R")
 source("D:/Github/transport-sim/simfun.R")
 
 iter <- 1000
-n_0 <- 1000
-n_1 <- 1000
+n_0 <- 500
+n_1 <- 500
 prob <- 0.3
-sig2 <- 5
+sig2 <- 2
 scen <- "baseline"
 
 # set.seed(06261992)
@@ -22,7 +22,7 @@ estList <- sapply(idx, simfit, simDat = simDat, sparse = (scen == "sparse"))
 tau_tmp <- do.call(rbind, estList[1,])
 cp_tmp <- do.call(rbind, estList[2,])
 colnames(tau_tmp) <- c("GLM", "OUT", "TMLE", "MOM", "ENT")
-colnames(cp_tmp) <- c("ENTSATE", "ENTPATE", "OUTSATE", "OUTPATE", "INDPATE")
+colnames(cp_tmp) <- c("OUTSATE", "OUTPATE", "ENTSATE", "ENTPATE", "INDPATE")
 
 tau <- apply(tau_tmp, 2, mean, na.rm = TRUE)
 mcse <- apply(tau_tmp, 2, sd, na.rm = TRUE)
