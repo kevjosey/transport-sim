@@ -273,6 +273,8 @@ estimate_pate <- function(obj, S, X, Y, Z, base_weights = NULL, ...) {
     invbread <- matrix(0, nrow = 2*m + 1, ncol = 2*m + 1)
     invbread[1:(2*m),1:(2*m)] <- U
     invbread[2*m + 1, ] <- v
+    invbread[(m + 1):(2*m),(m + 1):(2*m)] <- (n_1/n_0)*invbread[(m + 1):(2*m),(m + 1):(2*m)]
+    meat[(m + 1):(2*m),(m + 1):(2*m)] <- (n_1/n_0)*meat[(m + 1):(2*m),(m + 1):(2*m)]
     
     bread <- try(solve(invbread), silent = TRUE)
     
@@ -314,6 +316,8 @@ estimate_pate <- function(obj, S, X, Y, Z, base_weights = NULL, ...) {
     invbread <- matrix(0, nrow = 3*m + 1, ncol = 3*m + 1)
     invbread[1:(3*m),1:(3*m)] <- U
     invbread[3*m + 1, ] <- v
+    invbread[(2*m + 1):(3*m),(2*m + 1):(3*m)] <- (n_1/n_0)*invbread[(2*m + 1):(3*m),(2*m + 1):(3*m)]
+    meat[(2*m + 1):(3*m),(2*m + 1):(3*m)] <- (n_1/n_0)*meat[(2*m + 1):(3*m),(2*m + 1):(3*m)]
     
     bread <- try(solve(invbread), silent = TRUE)
     
