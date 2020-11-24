@@ -1,10 +1,10 @@
 
-tmle <- function(data, S, Z, Y, nsitemodel,  nzmodel, noutmodel) {
+tmle <- function(data, S, Z, Y, nsmodel, nzmodel, nymodel) {
   
   n.dat <- nrow(data)
   
   # Calculate components of clever covariate
-  glm_cps <- glm(formula = nsitemodel, data = data, family = "binomial")
+  glm_cps <- glm(formula = nsmodel, data = data, family = "binomial")
   cps <- predict(glm_cps, type = "response")
   glm_cpz <- glm(formula = nzmodel, data = data, family = "binomial", subset = S == 1)
   cpz <- predict(glm_cpz, newdata = data, type = "response")
@@ -18,7 +18,7 @@ tmle <- function(data, S, Z, Y, nsitemodel,  nzmodel, noutmodel) {
   h0w <- ((1 - Z) * I(S == 1)) / g0w
   h1w <- (Z * I(S == 1)) / g1w 
   
-  ymodel <- glm(formula = noutmodel, family = "gaussian", data = data, subset = S == 1)
+  ymodel <- glm(formula = nymodel, family = "gaussian", data = data, subset = S == 1)
   
   data_new0 <- data_new1 <- as.data.frame(data)
   data_new0$Z <- 0
@@ -36,8 +36,8 @@ tmle <- function(data, S, Z, Y, nsitemodel,  nzmodel, noutmodel) {
   
   # Get efficient influence curve values for everyone
   tmleest <- mean(q1[, 3][S == 0]) - mean(q1[, 2][S == 0])
-  eic <- (((Z * h1w / ps0) - ((1 - Z) * h0w / ps0)) * (Y - plogis(q[, 1]))) + 
-    (I(S == 0) / ps0 * plogis(q1[, 3])) - (I(S == 0) / ps0 * plogis(q1[, 2])) - 
+  eic <- (((Z * h1w / ps0) - ((1 - Z) * h0w / ps0)) * (Y - q[, 1])) + 
+    (I(S == 0) / ps0 * q1[, 3]) - (I(S == 0) / ps0 * q1[, 2]) - 
     (tmleest / ps0)
   
   return(list(estimate = tmleest, variance = var(eic) / n.dat))
